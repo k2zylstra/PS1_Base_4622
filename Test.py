@@ -1,4 +1,5 @@
 from turtle import distance
+from idna import InvalidCodepoint
 import numpy as np
 import matplotlib.pyplot as plt
 import sklearn.neighbors
@@ -58,6 +59,19 @@ class KNNClassifier:
 #                    min_dist = distances_nearest_k[i][j]
 #            voted_labels[i] = self.index_to_label[min_index]
         # code here
+        voted_labels = np.empty(indices_nearest_k[0])
+        class_count = dict(zip(self.classes, np.zeros(self.classes.shape[0])))
+        for i in range(indices_nearest_k.shape[0]):
+            majority_label = self.classes[0]
+            majority_label_count = 0
+            for j in range(indices_nearest_k.shape[1]):
+                class_count[self.index_to_label[j]] += 1
+            for j in range(len(self.classes)):
+                if majority_label_count < class_count[self.classes[i]]:
+                    majority_label_count = 
+                
+            
+
         
         #END
         return voted_labels
