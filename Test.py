@@ -1,3 +1,4 @@
+from turtle import distance
 import numpy as np
 import matplotlib.pyplot as plt
 import sklearn.neighbors
@@ -47,13 +48,15 @@ class KNNClassifier:
         # TODO: Determine majority for each row of indices_nearest_k
         # TODO: if there is a tie, remove the farthest neighbor until the tie is broken
         #BEGIN 
-        voted_labels = np.empty(indices_nearest_k.shape[0])
-        for i in range(len(indices_nearest_k.shape[0])):
-            dist = 0
-            for j in range(len(distances_nearest_k.shape[1])):
-                dist += distances_nearest_k[i][j]**2
-            dist = math.sqrt(dist)
-            voted_labels[i] = dist
+#        voted_labels = np.empty(indices_nearest_k.shape[0])
+#        for i in range(indices_nearest_k.shape[0]):
+#            min_index = 0
+#            min_dist = 0
+#            for j in range(distances_nearest_k.shape[1]):
+#                if distances_nearest_k[i][j] < min_dist:
+#                    min_index = j
+#                    min_dist = distances_nearest_k[i][j]
+#            voted_labels[i] = self.index_to_label[min_index]
         # code here
         
         #END
