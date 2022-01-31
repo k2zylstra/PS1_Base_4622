@@ -59,20 +59,26 @@ class KNNClassifier:
 #                    min_dist = distances_nearest_k[i][j]
 #            voted_labels[i] = self.index_to_label[min_index]
         # code here
-        voted_labels = np.empty(indices_nearest_k[0])
-        class_count = dict(zip(self.classes, np.zeros(self.classes.shape[0])))
+        voted_labels = np.empty(indices_nearest_k.shape[0])
         for i in range(indices_nearest_k.shape[0]):
-            majority_label = self.classes[0]
-            majority_label_count = 0
-            for j in range(indices_nearest_k.shape[1]):
-                class_count[self.index_to_label[j]] += 1
-            for j in range(len(self.classes)):
-                if majority_label_count < class_count[self.classes[i]]:
-                    majority_label_count = 
-                
-            
-
-        
+            class_count = np.empty(len(self.classes),2)
+            while True:
+                for j in range(indices_nearest_k.shape[1]):
+                    c = self._y[j]
+                    class_count[self.label_to_index[c]][0] += 1
+                    class_count[self.label_to_index[c]][1] = c
+                sort(class_count)
+                if class_count[len(class_count)-1] != class_count[len(class_count)-2]:
+                    voted_labels[i] = class_count[len(class_count)-1][1]
+                    break
+                farthest_index = 0
+                farthest_dist = 0
+                for j in range(distances_nearest_k.shape[1]):
+                    if distances_nearest_k[i][j] > farthest_dist:
+                        farthest_index = j
+                        farthest_dist = distances_nearest_k[i][j]
+                distances_nearest_k.remove(farthest_index)
+                indices_nearest_k.remove(farthest_index)
         #END
         return voted_labels
 
