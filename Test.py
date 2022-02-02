@@ -67,7 +67,7 @@ class KNNClassifier:
                     c = self._y[j]
                     class_count[self.label_to_index[c]][0] += 1
                     class_count[self.label_to_index[c]][1] = c
-                sort(class_count)
+                np.sort(class_count)
                 if class_count[len(class_count)-1] != class_count[len(class_count)-2]:
                     voted_labels[i] = class_count[len(class_count)-1][1]
                     break
