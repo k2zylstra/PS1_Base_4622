@@ -59,26 +59,33 @@ class KNNClassifier:
 #                    min_dist = distances_nearest_k[i][j]
 #            voted_labels[i] = self.index_to_label[min_index]
         # code here
+        classes = np.unique(self._y)
         voted_labels = np.empty(indices_nearest_k.shape[0])
         for i in range(indices_nearest_k.shape[0]):
-            class_count = np.empty(len(self.classes),2)
+            dist_row = distances_nearest_k[i].copy()
+            ind_row = indices_nearest_k[i].copy()
+
             while True:
-                for j in range(indices_nearest_k.shape[1]):
-                    c = self._y[j]
+                class_count = np.zeros((len(classes),2))
+                for j in range(len(ind_row)):
+                    c = self._y[ind_row[j]]
                     class_count[self.label_to_index[c]][0] += 1
                     class_count[self.label_to_index[c]][1] = c
-                np.sort(class_count)
-                if class_count[len(class_count)-1] != class_count[len(class_count)-2]:
-                    voted_labels[i] = class_count[len(class_count)-1][1]
+                class_count = class_count[class_count[:, 0].argsort()]
+                if len(ind_row) == 1:
+                    voted_labels[i] = class_count[-1][1]
                     break
-                farthest_index = 0
+                if class_count[-1][0] != class_count[-2][0]:
+                    voted_labels[i] = class_count[-1][1]
+                    break
+                farthest_index = 1
                 farthest_dist = 0
-                for j in range(distances_nearest_k.shape[1]):
-                    if distances_nearest_k[i][j] > farthest_dist:
+                for j in range(1, len(dist_row)):
+                    if dist_row[j] > farthest_dist:
                         farthest_index = j
-                        farthest_dist = distances_nearest_k[i][j]
-                distances_nearest_k.remove(farthest_index)
-                indices_nearest_k.remove(farthest_index)
+                        farthest_dist = dist_row[j]
+                dist_row = np.delete(dist_row, farthest_index)
+                ind_row = np.delete(ind_row, farthest_index)
         #END
         return voted_labels
 
@@ -92,8 +99,9 @@ class KNNClassifier:
         # Workspace 1.2
         #BEGIN 
         # code here
-        tree = sklearn.neighbors.BallTree(X, leaf_size=4)
-        distances_nearest_k, indices_nearest_k = tree.query(X, self._k)
+        #tree = sklearn.neighbors.BallTree(X, leaf_size=4)
+        #self._ball_tree = sklearn.neighbors.BallTree(X)  # See documentation of BallTree and how it's used
+        distances_nearest_k, indices_nearest_k = self._ball_tree.query(X, self._k)
         #END
         return self.majority_vote(indices_nearest_k, distances_nearest_k)
 
@@ -110,6 +118,11 @@ class KNNClassifier:
         c_matrix = np.zeros((len(self.label_to_index), len(self.label_to_index)))
         #BEGIN 
         # code here
+        y_prime = self.predict(X)
+        for i in range(len(y)):
+            index1 = self.label_to_index[y[i]]
+            index2 = self.label_to_index[y_prime[i]]
+            c_matrix[index1][index2] += 1
         #END
         return c_matrix
 
@@ -124,7 +137,15 @@ class KNNClassifier:
         # TODO: Compute accuracy on X
         #BEGIN 
         # code here
-        score = 0 # REPLACE
+        c_matrix = self.confusion_matrix(X, y)
+        numer = 0
+        denom = 0
+        for i in range(c_matrix.shape[0]):
+            numer += c_matrix[i][i]
+        for i in range(len(c_matrix)):
+            for j in range(len(c_matrix)):
+                denom += c_matrix[i][j]
+        score = numer / denom
         #END
         return score
 
