@@ -168,10 +168,11 @@ class Numbers:
         X_train = self.data.X_train
         X_valid = self.data.X_valid
         X_test = self.data.X_test
-        print("size of X_train:", X_train.shape[0]*X_train.shape[1])
-        print("size of X_valid:", X_valid.shape[0] * X_valid.shape[1])
-        print("size of X test:", X_test.shape[0] * X_test.shape[1])
-        print("size of datapoint", max(X_train.max(), X_valid.max(), X_test.max()))
+        print("number of different partitions:", 3)
+        print("training partition number of examples:", X_train.shape[0])
+        print("valid partition number of examples:", X_valid.shape[0])
+        print("test partition number of examples:", X_test.shape[0])
+        print("number of pixels per image:", X_train.shape[1])
         #END
 
     def evaluate(self, classifier_class):
@@ -236,4 +237,7 @@ class Numbers:
 
 numbers = Numbers()
 numbers.report()
-numbers.evaluate(KNNClassifier)
+#numbers.evaluate(KNNClassifier)
+
+
+numbers.view_digit(0, "train")
