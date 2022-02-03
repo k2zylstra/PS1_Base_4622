@@ -149,4 +149,91 @@ class KNNClassifier:
         #END
         return score
 
-tests.testKNN(KNNClassifier)
+
+class Numbers:
+    def __init__(self):
+        self.data = data.DigitData() # it has the same structure as binary_data
+
+    def report(self):
+        """
+        Report information about the dataset using the print() function
+        """
+        # Workspace 2.1
+        #TODO: Create print-outs for reporting the size of each set and the size of each datapoint
+        #BEGIN 
+        # code here
+        #print("examples")
+        #print("number of different partitions")
+        #print("number of pixels")
+        X_train = self.data.X_train
+        X_valid = self.data.X_valid
+        X_test = self.data.X_test
+        print("size of X_train:", X_train.shape[0]*X_train.shape[1])
+        print("size of X_valid:", X_valid.shape[0] * X_valid.shape[1])
+        print("size of X test:", X_test.shape[0] * X_test.shape[1])
+        print("size of datapoint", max(X_train.max(), X_valid.max(), X_test.max()))
+        #END
+
+    def evaluate(self, classifier_class):
+        """
+        valuates instances of the classifier class for different values of k and performs model selection
+        :param classifier_class: Classifier class (either KNNClassifier or WeightedKNNClassifier)
+        """
+
+        # Workspace 2.2
+
+        ks = list(range(1, 20))
+        accuracies_valid = []
+        #BEGIN 
+        # code here (anything between BEGIN and END is yours to edit if needed)
+        best_valid_k = None
+        confusion_matrix = None
+        accuracy = 0
+        ks = list(range(1, 20))
+        accuracies_valid = []
+        for k in ks:
+            print(k, end="\r")
+            knn = classifier_class(k).fit(self.data.X_train, self.data.y_train)
+            acc = knn.accuracy(self.data.X_valid, self.data.y_valid)
+            accuracies_valid.append(accuracy)
+            if accuracy < acc:
+                accuracy = acc
+                best_valid_k = k
+        knn = classifier_class(best_valid_k).fit(self.data.X_train, self.data.y_train)
+        confusion_matrix = knn.confusion_matrix(self.data.X_valid, self.data.y_valid)
+
+        #END
+        print("best k:", best_valid_k)
+        print("Accuracy on test set:", accuracy)
+        self.display_confusion(confusion_matrix)
+
+    def view_digit(self, index, partition):
+        """
+        Display a digit given its index and partition
+        :param index: index of the digit image
+        :param partition: partition from which the digit is retrieved, either "train", "valid" or "test"
+        """
+        image = {"train": self.data.X_train, "valid": self.data.X_valid, "test": self.data.X_test}[partition][index]
+        label = {"train": self.data.y_train, "valid": self.data.y_valid, "test": self.data.y_test}[partition][index]
+        image = image.reshape(28, 28)
+        plt.figure()
+        plt.matshow(image)
+        plt.title("Digit %i" % label)
+        plt.show()
+
+    @staticmethod
+    def display_confusion(c_matrix):
+        """
+        Displays the confusion matrix using matshow
+        :param c_matrix: square confusion matrix, shape (num_classes, num_classes)
+        """
+        _, ax = plt.subplots()
+        ax.matshow(c_matrix, cmap=plt.cm.Blues)
+        for i in range(c_matrix.shape[0]):
+            for j in range(c_matrix.shape[0]):
+                ax.text(i, j, str(c_matrix[j, i]), va='center', ha='center')
+        plt.show()
+
+numbers = Numbers()
+numbers.report()
+numbers.evaluate(KNNClassifier)
