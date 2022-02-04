@@ -174,6 +174,7 @@ def test_NB(nb_class):
         nb = nb_class().fit(features, labels)
         obtained = nb.features_log_likelihood
         comment = comment + "\n obtained: " + str(obtained)
+        print(comment)
         if np.allclose(obtained, outs, atol=1e-5):
             return True, comment
         return False, comment

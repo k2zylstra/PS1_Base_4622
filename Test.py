@@ -235,9 +235,111 @@ class Numbers:
                 ax.text(i, j, str(c_matrix[j, i]), va='center', ha='center')
         plt.show()
 
-numbers = Numbers()
-numbers.report()
-#numbers.evaluate(KNNClassifier)
+class NaiveBayes(object):
+    """
+    NaiveBayes classifier for binary features and binary labels
+    """
 
+    def __init__(self, alpha=0.0):
+        self.alpha = alpha
+        self.classes_counts = None
+        self.classes_log_probability = np.empty((2,))
+        self.features_log_likelihood = []  # list of arrays where element i store log p(X[:,i], y)
 
-numbers.view_digit(0, "train")
+    def compute_classes(self, y):
+        """
+        Computes the log prior of binary classes and stores the result in self.classes_log_probability
+        :param y: binary labels array, shape (m,)
+        """
+        # Workspace 3.3
+        #BEGIN 
+        # code here
+        positive_c = 0
+        negative_c = 0
+        size = len(y)
+        for i in range(len(y)):
+            if y[i]:
+                positive_c += 1
+            else:
+                negative_c += 1
+        
+        self.classes_log_probability[0] = np.log(negative_c/size)
+        self.classes_log_probability[1] = np.log(positive_c/size)
+        #END
+
+    def compute_features(self, X, y):
+        """
+        Computes the log likelihood matrices for different features and stores them in self.features_log_likelihood
+        :param X: data matrix with binary features, shape (n_samples, n_features)
+        :param y: binary labels array, shape (n_samples,)
+        """
+        # Workspace 3.4
+        #BEGIN 
+        # code here
+        count_y_neg = 0
+        count_y_pos = 0
+        for i in range(len(y)):
+            if y[i] == 0:
+                count_y_neg += 1
+            else:
+                count_y_pos += 1
+        for i in range(X.shape[1]):
+            A_i = np.zeros((2,2))
+            for j in range(X.shape[0]):
+                if X[j][i] == 0 and y[j] == 0:
+                    A_i[0][0] += 1
+                elif X[j][i] == 0 and y[j] == 1:
+                    A_i[1][0] += 1
+                elif X[j][i] == 1 and y[j] == 0:
+                    A_i[0][1] += 1
+                elif X[j][i] == 1 and y[j] == 1:
+                    A_i[1][1] += 1
+            A_i[0][0] = A_i[0][0] / count_y_neg
+            A_i[0][1] = A_i[0][1] / count_y_neg
+            A_i[1][0] = A_i[1][0] / count_y_pos
+            A_i[1][1] = A_i[1][1] / count_y_pos
+            for j in range(A_i.shape[0]):
+                for k in range(A_i.shape[1]):
+                    A_i[j][k] = np.log(A_i[j][k])
+            self.features_log_likelihood.append(A_i)
+                
+        #END
+
+    def fit(self, X, y):
+        """
+        :param X: binary np.array of shape (n_samples, n_features) [values 0 or 1]
+        :param y: corresponding binary labels of shape (n_samples,) [values 0 or 1]
+        :return: Classifier
+        """
+        self.compute_classes(y)
+        self.compute_features(X, y)
+        return self
+
+    def joint_log_likelihood(self, X):
+        """
+        Computes the joint log likelihood
+        :param X: binary np.array of shape (n_samples, n_features) [values 0 or 1]
+        :return: joint log likelihood array jll of shape (n_samples, 2), where jll[i] = [log p(X[i]|y=0),log p(X[i]|y=1)]
+        """
+        # Workspace 3.5
+        #BEGIN 
+        joint_log_likelihood = np.zeros((X.shape[0], 2))
+        # code here
+        #END
+        return joint_log_likelihood
+
+    def predict(self, X):
+        """
+        :param X:
+        :return:
+        """
+
+        # Workspace 3.6
+        # TODO: Find the corresponding labels using Naive bayes logic
+        #BEGIN 
+        # code here
+        y_hat = np.zeros((X.shape[0],))
+        #END
+        return y_hat
+
+tests.test_NB(NaiveBayes)
