@@ -325,6 +325,20 @@ class NaiveBayes(object):
         #BEGIN 
         joint_log_likelihood = np.zeros((X.shape[0], 2))
         # code here
+
+        for i in range(X.shape[0]):
+            y_neg_case = 0
+            y_pos_case = 0
+            for j in range(X.shape[1]):
+                if X[i][j] == 0:
+                    y_neg_case += self.features_log_likelihood[j][0][0]
+                    y_pos_case += self.features_log_likelihood[j][1][0]
+                else: # X[i][j] == 1
+                    y_neg_case += self.features_log_likelihood[j][0][1]
+                    y_pos_case += self.features_log_likelihood[j][1][1]
+            joint_log_likelihood[i][0] = y_neg_case
+            joint_log_likelihood[i][1] = y_pos_case
+
         #END
         return joint_log_likelihood
 
@@ -339,6 +353,14 @@ class NaiveBayes(object):
         #BEGIN 
         # code here
         y_hat = np.zeros((X.shape[0],))
+        joint = self.joint_log_likelihood(X)
+        for i in range(joint.shape[0]):
+            p_y = (joint[i][1]+self.classes_log_probability[1])
+            p_not_y = (joint[i][0]+self.classes_log_probability[0])
+            if p_y > p_not_y:
+                y_hat[i] = 1
+            else:
+                y_hat[i] = 0
         #END
         return y_hat
 
